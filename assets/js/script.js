@@ -72,7 +72,7 @@ var createTaskActions = function (taskId) {
   return actionContainerEl;
 };
 
-var createTaskEl = function (taskDataObj) {
+function createTaskEl(taskDataObj) {
   var taskItemEl = document.createElement("li");
   taskItemEl.className = "task-item";
 
@@ -97,8 +97,10 @@ var createTaskEl = function (taskDataObj) {
 
   tasks.push(taskDataObj);
 
+  saveTasks();
+
   taskIdCounter++;
-};
+}
 
 function completeEditTask(taskName, taskType, taskId) {
   // find the matching task list item
@@ -116,6 +118,8 @@ function completeEditTask(taskName, taskType, taskId) {
       tasks[i].type = taskType;
     }
   }
+
+  saveTasks();
 
   formEl.removeAttribute("data-task-id");
   document.querySelector("#save-task").textContent = "Add Task";
@@ -137,6 +141,8 @@ function deleteTask(taskId) {
   }
 
   tasks = updatedTaskArr;
+
+  saveTasks();
 }
 
 function editTask(taskId) {
@@ -149,6 +155,10 @@ function editTask(taskId) {
   document.querySelector("select[name='task-type']").value = taskType;
   document.querySelector("#save-task").textContent = "Save Task";
   formEl.setAttribute("data-task-id", taskId);
+}
+
+function saveTasks() {
+  localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
 function taskStatusChangeHandler(event) {
@@ -171,9 +181,11 @@ function taskStatusChangeHandler(event) {
       tasks[i].status = statusValue;
     }
   }
+
+  saveTasks();
 }
 
-var taskButtonHandler = function (event) {
+function taskButtonHandler(event) {
   var targetEl = event.target;
 
   if (targetEl.matches(".edit-btn")) {
@@ -185,10 +197,8 @@ var taskButtonHandler = function (event) {
     var taskId = targetEl.getAttribute("data-task-id");
     deleteTask(taskId);
   }
-};
+}
 
 formEl.addEventListener("submit", taskFormHandler);
 pageContentEl.addEventListener("click", taskButtonHandler);
 pageContentEl.addEventListener("change", taskStatusChangeHandler);
-
-// TODO: fix double new-task bug
