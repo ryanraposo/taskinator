@@ -1,3 +1,4 @@
+var tasks = [];
 var taskIdCounter = 0;
 
 var pageContentEl = document.querySelector("#page-content");
@@ -26,6 +27,7 @@ var taskFormHandler = function (event) {
     var taskDataObj = {
       name: taskNameInput,
       type: taskTypeInput,
+      status: "to do",
     };
 
     createTaskEl(taskDataObj);
@@ -91,14 +93,11 @@ var createTaskEl = function (taskDataObj) {
 
   tasksToDoEl.appendChild(taskItemEl);
 
-  taskIdCounter++;
-};
+  taskDataObj.id = taskIdCounter;
 
-var deleteTask = function (taskId) {
-  var taskSelected = document.querySelector(
-    ".task-item[data-task-id='" + taskId + "']"
-  );
-  taskSelected.remove();
+  tasks.push(taskDataObj);
+
+  taskIdCounter++;
 };
 
 function completeEditTask(taskName, taskType, taskId) {
@@ -111,10 +110,33 @@ function completeEditTask(taskName, taskType, taskId) {
   taskSelected.querySelector("h3.task-name").textContent = taskName;
   taskSelected.querySelector("span.task-type").textContent = taskType;
 
+  for (var i = 0; i < tasks.length; i++) {
+    if (tasks[i].id === parseInt(taskId)) {
+      tasks[i].name = taskName;
+      tasks[i].type = taskType;
+    }
+  }
+
   formEl.removeAttribute("data-task-id");
   document.querySelector("#save-task").textContent = "Add Task";
 
   alert("Task Updated!");
+}
+
+function deleteTask(taskId) {
+  var taskSelected = document.querySelector(
+    ".task-item[data-task-id='" + taskId + "']"
+  );
+  taskSelected.remove();
+
+  var updatedTaskArr = [];
+  for (var i = 0; i < tasks.length; i++) {
+    if (tasks[i].id !== parseInt(taskId)) {
+      updatedTaskArr.push(tasks[i]);
+    }
+  }
+
+  tasks = updatedTaskArr;
 }
 
 function editTask(taskId) {
@@ -142,6 +164,12 @@ function taskStatusChangeHandler(event) {
     tasksInProgressEl.appendChild(taskSelected);
   } else if (statusValue === "completed") {
     tasksCompletedEl.appendChild(taskSelected);
+  }
+
+  for (var i = 0; i < tasks.length; i++) {
+    if (tasks[i].id === parseInt(taskId)) {
+      tasks[i].status = statusValue;
+    }
   }
 }
 
